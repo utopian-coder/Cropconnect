@@ -1,8 +1,7 @@
 import { BsArrowRightShort } from "react-icons/bs";
 
-function HomePage() {
+function Hero() {
   return (
-    <>
     <section className='lg:grid lg:grid-cols-2 lg:justify-center lg:w-[85%] lg:mx-auto 2xl:items-center'>
       <div className='text-center lg:text-left'>
         <h1 className='heading'>
@@ -35,9 +34,7 @@ function HomePage() {
         />
       </div>
     </section>
-    
-    </>
   );
 }
 
-export default HomePage;
+export default Hero;
