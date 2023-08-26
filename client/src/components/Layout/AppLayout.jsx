@@ -1,9 +1,11 @@
 import { Outlet } from "react-router-dom";
-
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 function AppLayout() {
   return (
     <main>
-      <h1 className='bg-gray-500'>Layout</h1>
+      <Sidebar/>
+      <Navbar/>
       <Outlet />
     </main>
   );
