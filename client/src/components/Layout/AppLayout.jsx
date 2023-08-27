@@ -1,10 +1,12 @@
 import { Outlet } from "react-router-dom";
 import Footer from "./Footer";
-
+import Sidebar from './Sidebar'
+import Navbar from './Navbar'
 function AppLayout() {
   return (
     <main>
-      <h1 className='bg-gray-500'>Layout</h1>
+      <Sidebar/>
+      <Navbar/>
       <Outlet />
       <Footer />
     </main>
