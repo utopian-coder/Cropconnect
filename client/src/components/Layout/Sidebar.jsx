@@ -14,6 +14,7 @@ const Sidebar = () => {
     { name: "Products", link: "/products" },
     { name: "About", link: "/" },
     { name: "Contact", link: "/" },
+
   ];
 
   return (
