@@ -6,7 +6,7 @@ const SignIn = () => {
   const [IssignIN,setsighIN]=useState(true)
   return (
     <>
-    <button className='border-2 gap-[2px] flex justify-center items-center p-2 m-auto w-[95%] rounded-md hover:bg-gray-50'>
+    <button className='border-2 gap-[2px] flex justify-center items-center  py-2 px-4 m-auto w-[95%] rounded-md hover:bg-gray-50'>
       <span className='hidden text-2xl md:flex '>
         <IoIosContact/></span>{IssignIN?<Link to='/Auth'onClick={()=>setsighIN(!IssignIN)}>SignIn</Link>:<Link to='/Auth'onClick={()=>setsighIN(!IssignIN)}>SignUp</Link>}</button>
     </>

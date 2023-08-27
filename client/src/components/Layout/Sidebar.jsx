@@ -26,12 +26,12 @@ const Sidebar = () => {
         />
       ) : (
         <HiOutlineX
-          className="fixed z-20 flex items-center flex-row cursor-pointer text-2xl gap-[108px] right-6 top-6"
+          className="fixed z-30 flex items-center flex-row cursor-pointer text-2xl gap-[108px] right-6 top-6"
           onClick={() => setIsOpen(!isOpen)}
         />
       )}
       <div
-        className={`bg-white right-0 w-72 top-0 h-full pt-16 p-8 z-10 fixed text-text flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`bg-white right-0 w-72 top-0 h-full pt-16 p-8 z-20 fixed text-text flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
           } ease-in-out duration-100`}
       >
         <ul className="flex justify-center flex-col p-4">
