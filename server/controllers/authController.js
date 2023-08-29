@@ -4,39 +4,51 @@ const User = require("../model/User");
 const catchAsync = require("../utils/catchAsync");
 const appError = require("../utils/appError");
 
-const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, {
+const signToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRATION,
   });
+};
 
-exports.signup = catchAsync(async (req, res, next) => {
-  const { name, email, password, passwordConfirm, location, photo } = req.body;
-  const newUser = await User.create({
-    name,
-    email,
-    password,
-    passwordConfirm,
-    location,
-    photo,
-  });
-
+const setCookieAndSendResponse = (user, res) => {
   const cookieOptions = {
     sameSite: "none",
     httpOnly: true,
     secure: true,
   };
 
-  const token = signToken(newUser._id);
+  const token = signToken(user._id);
 
-  res
-    .status(201)
-    .cookie("token", token, cookieOptions)
-    .json({
-      status: "success",
-      data: {
-        user: newUser,
-      },
-    });
+  res.cookie("token", token, cookieOptions).status(201).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+};
+
+exports.signup = catchAsync(async (req, res, next) => {
+  const {
+    name,
+    email,
+    password,
+    passwordConfirm,
+    passwordChangedAt,
+    location,
+    photo,
+  } = req.body;
+
+  const newUser = await User.create({
+    name,
+    email,
+    password,
+    passwordConfirm,
+    passwordChangedAt,
+    location,
+    photo,
+  });
+
+  setCookieAndSendResponse(newUser, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -55,14 +67,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new appError("Incorrect email or password, try again!", 401));
   }
 
-  const token = signToken(userDoc._id);
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      token,
-    },
-  });
+  setCookieAndSendResponse(userDoc, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -77,5 +82,15 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (!user) return next(new appError("This user no longer exists!", 401));
 
+  if (user.isPasswordChangedAfterSigningJWT(userData.iat)) {
+    return next(
+      new appError(
+        "Password has been changed recently, please log in again!",
+        401
+      )
+    );
+  }
+
+  req.user = user; //Attaching user data in request body, might be used somewhere
   next();
 });
