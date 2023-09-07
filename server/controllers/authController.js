@@ -10,7 +10,7 @@ const signToken = (id) => {
   });
 };
 
-const setCookieAndSendResponse = (user, res) => {
+const setCookieAndSendResponse = (user, statusCode, res) => {
   const cookieOptions = {
     sameSite: "none",
     httpOnly: true,
@@ -18,57 +18,15 @@ const setCookieAndSendResponse = (user, res) => {
   };
 
   const token = signToken(user._id);
+  user.password = undefined;
 
-  res.cookie("token", token, cookieOptions).status(201).json({
+  res.cookie("token", token, cookieOptions).status(statusCode).json({
     status: "success",
     data: {
       user,
     },
   });
 };
-
-exports.signup = catchAsync(async (req, res, next) => {
-  const {
-    name,
-    email,
-    password,
-    passwordConfirm,
-    passwordChangedAt,
-    location,
-    photo,
-  } = req.body;
-
-  const newUser = await User.create({
-    name,
-    email,
-    password,
-    passwordConfirm,
-    passwordChangedAt,
-    location,
-    photo,
-  });
-
-  setCookieAndSendResponse(newUser, res);
-});
-
-exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return next(new appError("Please provide the email and password!", 400));
-  }
-
-  const userDoc = await User.findOne({ email }).select("+password");
-
-  if (
-    !userDoc ||
-    !(await userDoc.checkPasswordCorrectness(password, userDoc.password))
-  ) {
-    return next(new appError("Incorrect email or password, try again!", 401));
-  }
-
-  setCookieAndSendResponse(userDoc, res);
-});
 
 exports.protect = catchAsync(async (req, res, next) => {
   const { token } = req.cookies;
@@ -94,3 +52,50 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = user; //Attaching user data in request body, might be used somewhere
   next();
 });
+
+exports.signup = catchAsync(async (req, res, next) => {
+  const { name, email, password, passwordConfirm, location } = req.body;
+
+  const newUser = await User.create({
+    name,
+    email,
+    password,
+    passwordConfirm,
+    location,
+  });
+
+  setCookieAndSendResponse(newUser, 201, res);
+});
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new appError("Please provide the email and password!", 400));
+  }
+
+  const userDoc = await User.findOne({ email }).select("+password");
+
+  if (
+    !userDoc ||
+    !(await userDoc.checkPasswordCorrectness(password, userDoc.password))
+  ) {
+    return next(new appError("Incorrect email or password, try again!", 401));
+  }
+
+  setCookieAndSendResponse(userDoc, 200, res);
+});
+
+exports.logout = (req, res) => {
+  res
+    .cookie("token", "loggedout", {
+      sameSite: "none",
+      httpOnly: true,
+      secure: true,
+    })
+    .status(200)
+    .json({
+      status: "success",
+      message: "Successfully logged out!",
+    });
+};

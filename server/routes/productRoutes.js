@@ -1,12 +1,13 @@
 const express = require("express");
 const { Router } = express;
 const productController = require("../controllers/productController");
+const uploadImage = require("../utils/uploadImage");
 
 const router = Router();
 
 router
   .route("/")
-  .post(productController.createProduct)
+  .post(uploadImage.uploadMiddleware, productController.createProduct) //uploadMiddlware is from multer. It saves files in /tmp and makes them accesible from req.files
   .get(productController.getAllProducts);
 
 router

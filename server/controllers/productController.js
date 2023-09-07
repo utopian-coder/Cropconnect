@@ -1,10 +1,20 @@
 const Product = require("../model/Product");
 const catchAsync = require("../utils/catchAsync");
 const appError = require("../utils/appError");
+const { uploadToS3 } = require("../utils/uploadImage");
 
 exports.createProduct = catchAsync(async (req, res, next) => {
-  const { seller, title, description, catagory, price, photo, soldStatus } =
-    req.body;
+  const { seller, title, description, catagory, price, soldStatus } = req.body;
+  const photos = req.files;
+  const photoURLs = [];
+
+  console.log(photos);
+
+  for (const photo of photos) {
+    const { originalname, path, mimetype } = photo;
+    const photoURL = await uploadToS3(originalname, path, mimetype);
+    photoURLs.push(photoURL);
+  }
 
   const newProduct = await Product.create({
     seller,
@@ -12,7 +22,7 @@ exports.createProduct = catchAsync(async (req, res, next) => {
     description,
     catagory,
     price,
-    photo,
+    photos: photoURLs,
     soldStatus,
   });
 
