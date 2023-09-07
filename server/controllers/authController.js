@@ -28,37 +28,13 @@ const setCookieAndSendResponse = (user, statusCode, res) => {
   });
 };
 
-exports.protect = catchAsync(async (req, res, next) => {
-  const { token } = req.cookies;
-
-  if (!token) {
-    return next(new appError("You're not logged in, please log in!"));
-  }
-
-  const userData = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  const user = await User.findById(userData.id);
-
-  if (!user) return next(new appError("This user no longer exists!", 401));
-
-  if (user.isPasswordChangedAfterSigningJWT(userData.iat)) {
-    return next(
-      new appError(
-        "Password has been changed recently, please log in again!",
-        401
-      )
-    );
-  }
-
-  req.user = user; //Attaching user data in request body, might be used somewhere
-  next();
-});
-
 exports.signup = catchAsync(async (req, res, next) => {
-  const { name, email, password, passwordConfirm, location } = req.body;
+  const { name, email, password, passwordConfirm, location, role } = req.body;
 
   const newUser = await User.create({
     name,
     email,
+    role,
     password,
     passwordConfirm,
     location,
@@ -98,4 +74,41 @@ exports.logout = (req, res) => {
       status: "success",
       message: "Successfully logged out!",
     });
+};
+
+exports.protect = catchAsync(async (req, res, next) => {
+  const { token } = req.cookies;
+
+  if (!token) {
+    return next(new appError("You're not logged in, please log in!"));
+  }
+
+  const userData = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const user = await User.findById(userData.id);
+
+  if (!user) return next(new appError("This user no longer exists!", 401));
+
+  if (user.isPasswordChangedAfterSigningJWT(userData.iat)) {
+    return next(
+      new appError(
+        "Password has been changed recently, please log in again!",
+        401
+      )
+    );
+  }
+
+  req.user = user; //Attaching user data in request body, for using in authorization
+  next();
+});
+
+exports.restrictToSeller = (req, res, next) => {
+  const { role: currUserRole } = req.user;
+
+  if (currUserRole !== "seller") {
+    return next(
+      new appError(`You don't have permission to perform this action!`, 403)
+    );
+  }
+
+  next();
 };

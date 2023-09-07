@@ -8,8 +8,6 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   const photos = req.files;
   const photoURLs = [];
 
-  console.log(photos);
-
   for (const photo of photos) {
     const { originalname, path, mimetype } = photo;
     const photoURL = await uploadToS3(originalname, path, mimetype);
