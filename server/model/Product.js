@@ -32,11 +32,11 @@ const productSchema = new Schema(
       required: [true, "You must provide a base value for the product!"],
     },
 
-    photo: [String],
+    photos: [String],
 
     soldStatus: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: "false",
     },
   },
 
