@@ -13,6 +13,10 @@ router.route("/logout").get(authController.logout);
 router
   .route("/:id")
   .get(authController.protect, userController.getUser)
-  .patch(uploadImage.uploadMiddlewareSingle, userController.updateUser);
+  .patch(
+    authController.protect,
+    uploadImage.uploadMiddlewareSingle,
+    userController.updateUser
+  );
 
 module.exports = router;
