@@ -4,7 +4,9 @@ const appError = require("../utils/appError");
 const { uploadToS3 } = require("../utils/uploadImage");
 
 exports.createProduct = catchAsync(async (req, res, next) => {
-  const { seller, title, description, catagory, price, soldStatus } = req.body;
+  const { title, description, catagory, price, soldStatus } = req.body; //Get product data
+
+  //Get product photos upload them to s3 and get the urls
   const photos = req.files;
   const photoURLs = [];
 
@@ -13,6 +15,9 @@ exports.createProduct = catchAsync(async (req, res, next) => {
     const photoURL = await uploadToS3(originalname, path, mimetype);
     photoURLs.push(photoURL);
   }
+
+  //Get seller's id
+  const { id: seller } = req.user;
 
   const newProduct = await Product.create({
     seller,
@@ -34,13 +39,11 @@ exports.createProduct = catchAsync(async (req, res, next) => {
 
 exports.updateProduct = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { seller, title, description, catagory, price, photo, soldStatus } =
-    req.body;
+  const { title, description, catagory, price, photo, soldStatus } = req.body;
 
   const updatedProduct = await Product.findByIdAndUpdate(
     id,
     {
-      seller,
       title,
       description,
       catagory,
