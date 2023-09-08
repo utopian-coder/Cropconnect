@@ -1,6 +1,7 @@
 const User = require("../model/User");
 const appError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const { uploadToS3 } = require("../utils/uploadImage");
 
 exports.getUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -20,6 +21,14 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { name, email, location, role } = req.body;
 
+  const profilePhoto = req.file;
+  let profilePhotoURL;
+
+  if (profilePhoto) {
+    const { originalname, path, mimetype } = profilePhoto;
+    profilePhotoURL = await uploadToS3(originalname, path, mimetype);
+  }
+
   const updatedUser = await User.findByIdAndUpdate(
     id,
     {
@@ -27,6 +36,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
       email,
       role,
       location,
+      photo: profilePhotoURL,
     },
     {
       new: true,
@@ -40,7 +50,3 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     },
   });
 });
-
-exports.updateProfilePicture = catchAsync(async (req, res, next) => {});
-
-exports.getAllProductsSoldByUser = catchAsync(async (req, res, next) => {});

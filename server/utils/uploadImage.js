@@ -3,7 +3,8 @@ const multer = require("multer");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 //It saves files in /tmp and makes them accesible from req.files
-exports.uploadMiddleware = multer({ dest: "/tmp" }).array("photos", 5);
+exports.uploadMiddlewareMultiple = multer({ dest: "/tmp" }).array("photos", 5);
+exports.uploadMiddlewareSingle = multer({ dest: "/tmp" }).single("photo");
 
 const s3Bucket = "cropconnect";
 

@@ -1,5 +1,6 @@
 const express = require("express");
 const { Router } = express;
+const uploadImage = require("../utils/uploadImage");
 const authController = require("../controllers/authController");
 const userController = require("../controllers/userController");
 
@@ -12,6 +13,6 @@ router.route("/logout").get(authController.logout);
 router
   .route("/:id")
   .get(authController.protect, userController.getUser)
-  .patch(userController.updateUser);
+  .patch(uploadImage.uploadMiddlewareSingle, userController.updateUser);
 
 module.exports = router;

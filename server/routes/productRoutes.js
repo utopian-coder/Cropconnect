@@ -11,7 +11,7 @@ router
   .post(
     authController.protect,
     authController.restrictToSeller,
-    uploadImage.uploadMiddleware, //uploadMiddlware is from multer. It saves files in /tmp and makes them accesible from req.files
+    uploadImage.uploadMiddlewareMultiple, //uploadMiddlware is from multer. It saves files in /tmp and makes them accesible from req.files
     productController.createProduct
   )
   .get(productController.getAllProducts);
