@@ -14,7 +14,7 @@ const Navbar = () => {
 
     return (
         <>
-            <header className="border  bg-background flex items-center justify-between p-4  shadow-lg md:pb-4 fixed w-full z-10 top-0">
+            <header className="sticky top-0 border bg-background flex items-center justify-between p-4  shadow-lg md:pb-4 fixed w-full z-10 top-0">
                 <div className="flex  items-center justify-between mb-4 md:mb-0">
                     <h1 className="leading-none text-2xl text-grey-darkest">
                         <Link className="no-underline text-grey-darkest hover:text-black" to="/">
