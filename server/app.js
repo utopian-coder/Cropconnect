@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const appError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const userRoutes = require("./routes/userRoutes");
+const productRoutes = require("./routes/productRoutes");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cookieParser());
 
 //Routes
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/product", productRoutes);
 
 //Handling request to routes that aren't defined on the server
 app.all("*", (req, res, next) =>

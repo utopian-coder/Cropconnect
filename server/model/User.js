@@ -66,7 +66,8 @@ userSchema.methods.checkPasswordCorrectness = async function (
 
 userSchema.methods.isPasswordChangedAfterSigningJWT = function (jwtTimestamp) {
   if (this.passwordChangedAt) {
-    console.log(jwtTimestamp, this.passwordChangedAt);
+    const convertedTimestamp = this.passwordChangedAt.getTime() / 1000;
+    return convertedTimestamp > jwtTimestamp; //Password was changed after signing JWT
   }
 
   return false;
