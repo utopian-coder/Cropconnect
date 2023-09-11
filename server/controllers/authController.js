@@ -10,7 +10,7 @@ const signToken = (id) => {
   });
 };
 
-const setCookieAndSendResponse = (user, res) => {
+const setCookieAndSendResponse = (user, statusCode, res) => {
   const cookieOptions = {
     sameSite: "none",
     httpOnly: true,
@@ -18,8 +18,9 @@ const setCookieAndSendResponse = (user, res) => {
   };
 
   const token = signToken(user._id);
+  user.password = undefined;
 
-  res.cookie("token", token, cookieOptions).status(201).json({
+  res.cookie("token", token, cookieOptions).status(statusCode).json({
     status: "success",
     data: {
       user,
@@ -28,27 +29,18 @@ const setCookieAndSendResponse = (user, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const {
-    name,
-    email,
-    password,
-    passwordConfirm,
-    passwordChangedAt,
-    location,
-    photo,
-  } = req.body;
+  const { name, email, password, passwordConfirm, location, role } = req.body;
 
   const newUser = await User.create({
     name,
     email,
+    role,
     password,
     passwordConfirm,
-    passwordChangedAt,
     location,
-    photo,
   });
 
-  setCookieAndSendResponse(newUser, res);
+  setCookieAndSendResponse(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -67,8 +59,22 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new appError("Incorrect email or password, try again!", 401));
   }
 
-  setCookieAndSendResponse(userDoc, res);
+  setCookieAndSendResponse(userDoc, 200, res);
 });
+
+exports.logout = (req, res) => {
+  res
+    .cookie("token", "loggedout", {
+      sameSite: "none",
+      httpOnly: true,
+      secure: true,
+    })
+    .status(200)
+    .json({
+      status: "success",
+      message: "Successfully logged out!",
+    });
+};
 
 exports.protect = catchAsync(async (req, res, next) => {
   const { token } = req.cookies;
@@ -91,6 +97,18 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  req.user = user; //Attaching user data in request body, might be used somewhere
+  req.user = user; //Attaching user data in request body, for using in authorization
   next();
 });
+
+exports.restrictToSeller = (req, res, next) => {
+  const { role: currUserRole } = req.user;
+
+  if (currUserRole !== "seller") {
+    return next(
+      new appError(`You don't have permission to perform this action!`, 403)
+    );
+  }
+
+  next();
+};
