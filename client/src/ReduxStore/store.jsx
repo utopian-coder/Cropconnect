@@ -1,12 +1,11 @@
-
-import { configureStore, applyMiddleware } from '@reduxjs/toolkit';
-import thunk from 'redux-thunk'; // Import Redux Thunk
-import { reducers } from './Reducers/index'
+import { configureStore, applyMiddleware } from "@reduxjs/toolkit";
+import thunk from "redux-thunk"; // Import Redux Thunk
+import { reducers } from "./Reducers/index";
 
 function saveToLocalStorage(store) {
   try {
     const serializedState = JSON.stringify(store);
-    window.localStorage.setItem('store', serializedState);
+    window.localStorage.setItem("store", serializedState);
   } catch (e) {
     console.log(e);
   }
@@ -14,7 +13,7 @@ function saveToLocalStorage(store) {
 
 function loadFromLocalStorage() {
   try {
-    const serializedState = window.localStorage.getItem('store');
+    const serializedState = window.localStorage.getItem("store");
     if (serializedState === null) return undefined;
     return serializedState ? JSON.parse(serializedState) : undefined;
   } catch (e) {
@@ -23,7 +22,7 @@ function loadFromLocalStorage() {
   }
 }
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 
 const persistedState = loadFromLocalStorage();
 
